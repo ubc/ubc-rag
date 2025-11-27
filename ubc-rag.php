@@ -28,6 +28,11 @@ if ( file_exists( UBC_RAG_PATH . 'libraries/action-scheduler/action-scheduler.ph
 	require_once UBC_RAG_PATH . 'libraries/action-scheduler/action-scheduler.php';
 }
 
+// Load Composer dependencies.
+if ( file_exists( UBC_RAG_PATH . 'vendor/autoload.php' ) ) {
+	require_once UBC_RAG_PATH . 'vendor/autoload.php';
+}
+
 // Require the autoloader.
 require_once UBC_RAG_PATH . 'includes/class-autoloader.php';
 

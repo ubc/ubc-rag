@@ -53,6 +53,9 @@ class Plugin {
 			$admin_menu = new Admin_Menu();
 			add_action( 'admin_menu', [ $admin_menu, 'add_menu' ] );
 			add_action( 'admin_init', [ $admin_menu, 'register_settings' ] );
+			add_action( 'wp_ajax_ubc_rag_test_connection', [ $admin_menu, 'ajax_test_connection' ] );
+			add_action( 'wp_ajax_rag_retry_item', [ $admin_menu, 'ajax_retry_item' ] );
+			add_action( 'wp_ajax_rag_retry_all', [ $admin_menu, 'ajax_retry_all' ] );
 		}
 	}
 
@@ -66,6 +69,71 @@ class Plugin {
 	private function define_public_hooks() {
 		$content_monitor = new Content_Monitor();
 		$content_monitor->init();
+
+		$worker = new Worker();
+		$worker->init();
+
+		// Initialize retry queue manager.
+		$retry_queue = new Retry_Queue();
+		$retry_queue->init();
+
+		// Register default extractors.
+		add_action( 'ubc_rag_register_extractors', [ $this, 'register_extractors' ] );
+
+		// Initialize Extractor Factory.
+		\UBC\RAG\Extractors\Extractor_Factory::get_instance()->init();
+
+		// Register default chunkers.
+		add_action( 'ubc_rag_register_chunkers', [ $this, 'register_chunkers' ] );
+
+		// Initialize Chunker Factory.
+		// Initialize Chunker Factory.
+		\UBC\RAG\Chunker_Factory::get_instance()->init();
+
+		// Register default embedding providers.
+		add_action( 'ubc_rag_register_embedding_providers', [ $this, 'register_embedding_providers' ] );
+
+		// Initialize Embedding Factory.
+		\UBC\RAG\Embedding_Factory::get_instance()->init();
+	}
+
+	/**
+	 * Register default extractors.
+	 *
+	 * @param \UBC\RAG\Extractors\Extractor_Factory $factory Factory instance.
+	 */
+	public function register_extractors( $factory ) {
+		$factory->register_extractor( 'post', '\UBC\RAG\Extractors\Post_Extractor' );
+		$factory->register_extractor( 'page', '\UBC\RAG\Extractors\Post_Extractor' );
+		$factory->register_extractor( 'application/pdf', '\UBC\RAG\Extractors\PDF_Extractor' );
+		$factory->register_extractor( 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '\UBC\RAG\Extractors\Docx_Extractor' );
+		$factory->register_extractor( 'application/vnd.openxmlformats-officedocument.presentationml.presentation', '\UBC\RAG\Extractors\Pptx_Extractor' );
+		$factory->register_extractor( 'text/plain', '\UBC\RAG\Extractors\Text_Extractor' );
+		$factory->register_extractor( 'text/markdown', '\UBC\RAG\Extractors\Markdown_Extractor' );
+		$factory->register_extractor( 'text/x-markdown', '\UBC\RAG\Extractors\Markdown_Extractor' );
+	}
+
+	/**
+	 * Register default chunkers.
+	 *
+	 * @param \UBC\RAG\Chunker_Factory $factory Factory instance.
+	 */
+	public function register_chunkers( $factory ) {
+		$factory->register_chunker( 'character', '\UBC\RAG\Chunkers\Character_Chunker' );
+		$factory->register_chunker( 'word', '\UBC\RAG\Chunkers\Word_Chunker' );
+		$factory->register_chunker( 'sentence', '\UBC\RAG\Chunkers\Sentence_Chunker' );
+		$factory->register_chunker( 'paragraph', '\UBC\RAG\Chunkers\Paragraph_Chunker' );
+		$factory->register_chunker( 'page', '\UBC\RAG\Chunkers\Page_Chunker' );
+	}
+
+	/**
+	 * Register default embedding providers.
+	 *
+	 * @param \UBC\RAG\Embedding_Factory $factory Factory instance.
+	 */
+	public function register_embedding_providers( $factory ) {
+		$factory->register_provider( 'openai', '\UBC\RAG\Embeddings\OpenAI_Provider' );
+		$factory->register_provider( 'ollama', '\UBC\RAG\Embeddings\Ollama_Provider' );
 	}
 
 	/**

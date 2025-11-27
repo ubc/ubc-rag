@@ -14,22 +14,22 @@
 		<?php
 		switch ( $active_tab ) {
 			case 'dashboard':
-				echo '<p>' . esc_html__( 'Dashboard content coming soon.', 'ubc-rag' ) . '</p>';
+				require_once plugin_dir_path( __FILE__ ) . 'dashboard-tab.php';
 				break;
 			case 'content_types':
-				echo '<p>' . esc_html__( 'Content Types settings coming soon.', 'ubc-rag' ) . '</p>';
+				require_once plugin_dir_path( __FILE__ ) . 'content-types-tab.php';
 				break;
 			case 'chunking':
-				echo '<p>' . esc_html__( 'Chunking settings coming soon.', 'ubc-rag' ) . '</p>';
+				require_once plugin_dir_path( __FILE__ ) . 'chunking-tab.php';
 				break;
 			case 'embedding':
-				echo '<p>' . esc_html__( 'Embedding settings coming soon.', 'ubc-rag' ) . '</p>';
+				require_once plugin_dir_path( __FILE__ ) . 'embedding-tab.php';
 				break;
 			case 'storage':
-				echo '<p>' . esc_html__( 'Storage settings coming soon.', 'ubc-rag' ) . '</p>';
+				require_once plugin_dir_path( __FILE__ ) . 'storage-tab.php';
 				break;
 			case 'advanced':
-				echo '<p>' . esc_html__( 'Advanced settings coming soon.', 'ubc-rag' ) . '</p>';
+				require_once plugin_dir_path( __FILE__ ) . 'advanced-tab.php';
 				break;
 			default:
 				echo '<p>' . esc_html__( 'Invalid tab.', 'ubc-rag' ) . '</p>';

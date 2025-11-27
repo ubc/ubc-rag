@@ -65,4 +65,14 @@ interface VectorStorageInterface {
 	 * @return bool
 	 */
 	public function test_connection(): bool;
+
+	/**
+	 * Get the maximum chunk index stored for a content item.
+	 * Used for resumable processing.
+	 *
+	 * @param string $collection_name Collection name.
+	 * @param array  $filter          Filter conditions (e.g. ['content_id' => 123, 'content_type' => 'post']).
+	 * @return int|null Max chunk index or null if no vectors exist.
+	 */
+	public function get_max_chunk_index( string $collection_name, array $filter ): ?int;
 }

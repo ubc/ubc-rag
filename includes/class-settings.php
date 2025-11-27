@@ -44,20 +44,20 @@ class Settings {
 	public static function get_defaults() {
 		return [
 			'version' => UBC_RAG_VERSION,
-			'storage' => [
-				'type'   => 'qdrant',
-				'qdrant' => [
-					'url'             => '',
+			'vector_store' => [
+				'provider' => 'mysql',
+				'qdrant'   => [
+					'url'             => 'http://localhost:6333',
 					'api_key'         => '',
-					'collection_name' => '',
+					'collection_name' => 'rag_collection',
 					'distance_metric' => 'Cosine',
 				],
-				'mysql_vector' => [
-					'enabled' => false,
+				'mysql'    => [
+					'enabled' => true,
 				],
 			],
 			'embedding' => [
-				'provider' => 'openai',
+				'provider' => '',
 				'openai'   => [
 					'api_key'       => '',
 					'model'         => 'text-embedding-3-small',
@@ -65,10 +65,11 @@ class Settings {
 					'use_batch_api' => true,
 				],
 				'ollama'   => [
-					'endpoint'   => 'http://localhost:11434',
-					'api_key'    => '',
-					'model'      => 'nomic-embed-text',
-					'dimensions' => 768,
+					'endpoint'       => 'http://localhost:11434',
+					'model'          => 'nomic-embed-text',
+					'dimensions'     => 768,
+					'api_key'        => '',
+					'context_window' => 8192,
 				],
 			],
 			'content_types' => [
@@ -95,8 +96,8 @@ class Settings {
 					'auto_index'        => true,
 					'chunking_strategy' => 'page',
 					'chunking_settings' => [
-						'chunk_size' => 2000,
-						'overlap'    => 300,
+						'chunk_size' => 1500, // Reduced from 2000 to fit time budget
+						'overlap'    => 250,  // Reduced from 300 to match smaller chunks
 					],
 				],
 			],

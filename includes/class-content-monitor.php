@@ -39,6 +39,13 @@ class Content_Monitor {
 			return;
 		}
 
+		// Debounce: Check if we've already processed this post in this request.
+		static $processed_posts = [];
+		if ( isset( $processed_posts[ $post_id ] ) ) {
+			return;
+		}
+		$processed_posts[ $post_id ] = true;
+
 		// Check if content type is enabled.
 		$settings = Settings::get_settings();
 		$post_type = $post->post_type;
@@ -55,7 +62,7 @@ class Content_Monitor {
 			return;
 		}
 
-		error_log( sprintf( 'UBC RAG: Post saved: %d (%s)', $post_id, $post_type ) );
+		Logger::log( sprintf( 'Post saved: %d (%s)', $post_id, $post_type ) );
 
 		// Update status to queued.
 		Status::set_status( $post_id, $post_type, 'queued' );
@@ -77,14 +84,14 @@ class Content_Monitor {
 		}
 
 		$post_type = $post->post_type;
-		
+
 		// Check settings (though for delete we might want to clean up regardless).
 		$settings = Settings::get_settings();
 		if ( ! isset( $settings['content_types'][ $post_type ] ) || ! $settings['content_types'][ $post_type ]['enabled'] ) {
 			return;
 		}
 
-		error_log( sprintf( 'UBC RAG: Post deleted: %d (%s)', $post_id, $post_type ) );
+		Logger::log( sprintf( 'Post deleted: %d (%s)', $post_id, $post_type ) );
 
 		// Push delete job.
 		Queue::push( $post_id, $post_type, 'delete' );
@@ -102,7 +109,7 @@ class Content_Monitor {
 			return;
 		}
 
-		error_log( sprintf( 'UBC RAG: Attachment saved: %d', $post_id ) );
+		Logger::log( sprintf( 'Attachment saved: %d', $post_id ) );
 
 		Status::set_status( $post_id, 'attachment', 'queued' );
 		Queue::push( $post_id, 'attachment', 'update' );
@@ -120,7 +127,7 @@ class Content_Monitor {
 			return;
 		}
 
-		error_log( sprintf( 'UBC RAG: Attachment deleted: %d', $post_id ) );
+		Logger::log( sprintf( 'Attachment deleted: %d', $post_id ) );
 
 		Queue::push( $post_id, 'attachment', 'delete' );
 	}

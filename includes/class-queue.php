@@ -2,6 +2,8 @@
 
 namespace UBC\RAG;
 
+use UBC\RAG\Logger;
+
 /**
  * Queue class.
  */
@@ -22,7 +24,7 @@ class Queue {
 	 */
 	public static function push( $content_id, $content_type, $operation = 'update' ) {
 		if ( ! function_exists( 'as_enqueue_async_action' ) ) {
-			error_log( 'UBC RAG Error: ActionScheduler not found. Cannot queue job.' );
+			Logger::log( 'UBC RAG Error: ActionScheduler not found. Cannot queue job.' );
 			return null;
 		}
 
@@ -37,6 +39,12 @@ class Queue {
 			'operation'    => $operation,
 		];
 
+		// Check if there is already a pending action with these args.
+		if ( as_has_scheduled_action( self::ACTION_INDEX_ITEM, $args, $group ) ) {
+			Logger::log( sprintf( 'UBC RAG: Job already queued for %s %d (%s)', $content_type, $content_id, $operation ) );
+			return null;
+		}
+
 		// Enqueue the action.
 		// We use async action to process as soon as possible.
 		$action_id = as_enqueue_async_action(
@@ -46,7 +54,7 @@ class Queue {
 		);
 
 		// Log for debugging.
-		error_log( sprintf( 'UBC RAG: Queued job %s for %s %d (%s)', $action_id, $content_type, $content_id, $operation ) );
+		Logger::log( sprintf( 'Queued job %s for %s %d (%s)', $action_id, $content_type, $content_id, $operation ) );
 
 		return $action_id;
 	}

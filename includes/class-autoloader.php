@@ -51,7 +51,11 @@ class Autoloader {
 		
 		// Check for Interface convention.
 		if ( strpos( $class_file, 'Interface' ) !== false ) {
-			$file_name = 'interface-' . strtolower( str_replace( [ '_', 'Interface' ], [ '-', '' ], $class_file ) ) . '.php';
+			// Remove 'Interface' suffix.
+			$base_name = str_replace( 'Interface', '', $class_file );
+			// Convert CamelCase to kebab-case (e.g., EmbeddingProvider -> embedding-provider).
+			$kebab_name = strtolower( preg_replace( '/(?<!^)[A-Z]/', '-$0', $base_name ) );
+			$file_name = 'interface-' . $kebab_name . '.php';
 		} else {
 			$file_name = 'class-' . strtolower( str_replace( '_', '-', $class_file ) ) . '.php';
 		}

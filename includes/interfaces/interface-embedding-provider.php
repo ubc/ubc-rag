@@ -19,15 +19,17 @@ interface EmbeddingProviderInterface {
 	/**
 	 * Get the dimension size of embeddings from this provider.
 	 *
+	 * @param array $settings Provider-specific settings.
 	 * @return int
 	 */
-	public function get_dimensions(): int;
+	public function get_dimensions( array $settings ): int;
 
 	/**
 	 * Test connection with current settings.
 	 *
+	 * @param array $settings Provider-specific settings.
 	 * @return bool
 	 * @throws \Exception With details on failure.
 	 */
-	public function test_connection(): bool;
+	public function test_connection( array $settings ): bool;
 }

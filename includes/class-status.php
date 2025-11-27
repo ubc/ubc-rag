@@ -105,4 +105,59 @@ class Status {
 			)
 		);
 	}
+
+	/**
+	 * Delete status record for a content item.
+	 *
+	 * @param int    $content_id   Content ID.
+	 * @param string $content_type Content Type.
+	 * @return int|false The number of rows deleted, or false on error.
+	 */
+	public static function delete_status( $content_id, $content_type ) {
+		global $wpdb;
+		$table = self::get_table_name();
+
+		return $wpdb->delete(
+			$table,
+			[
+				'content_id'   => $content_id,
+				'content_type' => $content_type,
+			],
+			[ '%d', '%s' ]
+		);
+	}
+
+	/**
+	 * Get statistics.
+	 *
+	 * @return array
+	 */
+	public static function get_statistics() {
+		global $wpdb;
+		$table = self::get_table_name();
+
+		$stats = [
+			'total'      => 0,
+			'indexed'    => 0,
+			'processing' => 0,
+			'failed'     => 0,
+			'queued'     => 0,
+		];
+
+		// Check if table exists first.
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) !== $table ) {
+			return $stats;
+		}
+
+		$results = $wpdb->get_results( "SELECT status, COUNT(*) as count FROM $table GROUP BY status" );
+
+		foreach ( $results as $row ) {
+			if ( isset( $stats[ $row->status ] ) ) {
+				$stats[ $row->status ] = (int) $row->count;
+			}
+			$stats['total'] += (int) $row->count;
+		}
+
+		return $stats;
+	}
 }
