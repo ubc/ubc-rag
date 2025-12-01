@@ -130,6 +130,20 @@ class Ollama_Provider implements EmbeddingProviderInterface {
 	}
 
 	/**
+	 * Generate embeddings for a batch of chunks.
+	 *
+	 * @param array $chunks   Array of chunk data.
+	 * @param array $settings Provider-specific settings.
+	 * @return array Array of embeddings.
+	 * @throws \Exception On failure.
+	 */
+	public function embed_batch( array $chunks, array $settings ): array {
+		// Ollama doesn't support batching yet, so we loop.
+		// embed() already loops, so we just call that.
+		return $this->embed( $chunks, $settings );
+	}
+
+	/**
 	 * Get the dimension size of embeddings from this provider.
 	 *
 	 * @param array $settings Provider-specific settings.

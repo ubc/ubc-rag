@@ -94,4 +94,24 @@ class Embedding_Factory {
 	public function get_registered_providers() {
 		return $this->providers;
 	}
+
+	/**
+	 * Get the active provider based on settings.
+	 *
+	 * @return EmbeddingProviderInterface|null
+	 */
+	public function get_active_provider() {
+		$settings = Settings::get_settings();
+		$slug     = isset( $settings['embedding']['provider'] ) ? $settings['embedding']['provider'] : 'openai';
+
+		// Fallback to openai if not set or not found (safety net).
+		// But we should check if the provider is actually registered.
+		$provider = $this->get_provider( $slug );
+		
+		if ( ! $provider && 'openai' !== $slug ) {
+			$provider = $this->get_provider( 'openai' );
+		}
+
+		return $provider;
+	}
 }

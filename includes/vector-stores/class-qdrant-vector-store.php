@@ -52,10 +52,7 @@ class Qdrant_Vector_Store implements VectorStorageInterface {
 	 * @return string
 	 */
 	public function get_collection_name(): string {
-		$blog_id = get_current_blog_id();
-		$site_url = get_site_url();
-		$hash = substr( hash( 'sha256', $site_url ), 0, 8 );
-		return "site_{$blog_id}_{$hash}";
+		return \UBC\RAG\Vector_Store_Factory::get_instance()->get_collection_name();
 	}
 
 	/**
@@ -439,5 +436,60 @@ class Qdrant_Vector_Store implements VectorStorageInterface {
 		}
 		
 		return $max_index >= 0 ? $max_index : null;
+	}
+
+	/**
+	 * Search for similar vectors.
+	 *
+	 * @param string $collection_name Collection name.
+	 * @param array  $vector          Query vector.
+	 * @param int    $limit           Maximum number of results.
+	 * @param array  $filter          Metadata filter.
+	 * @return array Array of results.
+	 */
+	public function query( string $collection_name, array $vector, int $limit = 5, array $filter = [] ): array {
+		$collection_name = $this->get_collection_name();
+
+		if ( ! $this->collection_exists( $collection_name ) ) {
+			return [];
+		}
+
+		$payload = [
+			'vector'       => $vector,
+			'limit'        => $limit,
+			'with_payload' => true,
+		];
+
+		if ( ! empty( $filter ) ) {
+			$must = [];
+			foreach ( $filter as $key => $value ) {
+				$must[] = [
+					'key'   => $key,
+					'match' => [
+						'value' => $value,
+					],
+				];
+			}
+			$payload['filter'] = [
+				'must' => $must,
+			];
+		}
+
+		$response = $this->request( "/collections/$collection_name/points/search", 'POST', $payload );
+
+		if ( ! $response || ! isset( $response['result'] ) ) {
+			return [];
+		}
+
+		$results = [];
+		foreach ( $response['result'] as $point ) {
+			$results[] = [
+				'id'      => $point['id'],
+				'score'   => $point['score'],
+				'payload' => isset( $point['payload'] ) ? $point['payload'] : [],
+			];
+		}
+
+		return $results;
 	}
 }

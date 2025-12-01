@@ -4,20 +4,12 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d
+class ComposerStaticInit5001d9383a23cba976621ee5817332fd
 {
-    public static $files = array (
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-    );
-
     public static $prefixLengthsPsr4 = array (
         'Z' => 
         array (
             'ZipStream\\' => 10,
-        ),
-        'S' => 
-        array (
-            'Symfony\\Polyfill\\Mbstring\\' => 26,
         ),
         'P' => 
         array (
@@ -30,9 +22,14 @@ class ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d
             'PhpOffice\\Math\\' => 15,
             'PhpOffice\\Common\\' => 17,
         ),
+        'O' => 
+        array (
+            'OnnxRuntime\\' => 12,
+        ),
         'M' => 
         array (
             'Matrix\\' => 7,
+            'MHz\\MysqlVector\\' => 16,
         ),
         'C' => 
         array (
@@ -45,10 +42,6 @@ class ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d
         'ZipStream\\' => 
         array (
             0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
-        ),
-        'Symfony\\Polyfill\\Mbstring\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
         ),
         'Psr\\SimpleCache\\' => 
         array (
@@ -83,9 +76,17 @@ class ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d
         array (
             0 => __DIR__ . '/..' . '/phpoffice/common/src/Common',
         ),
+        'OnnxRuntime\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ankane/onnxruntime/src',
+        ),
         'Matrix\\' => 
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
+        'MHz\\MysqlVector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/allanpichardo/mysql-vector/src',
         ),
         'Composer\\Pcre\\' => 
         array (
@@ -105,6 +106,13 @@ class ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d
                 0 => __DIR__ . '/..' . '/smalot/pdfparser/src',
             ),
         ),
+        'K' => 
+        array (
+            'KMeans' => 
+            array (
+                0 => __DIR__ . '/..' . '/bdelespierre/php-kmeans/src',
+            ),
+        ),
     );
 
     public static $classMap = array (
@@ -115,10 +123,10 @@ class ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit8f77d502c3e6dec4ec8bd8dbccb9c76d::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5001d9383a23cba976621ee5817332fd::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5001d9383a23cba976621ee5817332fd::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5001d9383a23cba976621ee5817332fd::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit5001d9383a23cba976621ee5817332fd::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Smalot\\PdfParser\\' => array($vendorDir . '/smalot/pdfparser/src'),
+    'KMeans' => array($vendorDir . '/bdelespierre/php-kmeans/src'),
 );

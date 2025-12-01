@@ -1,0 +1,23 @@
+.ubc-rag-status-icon .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.ubc-rag-meta-box-status {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+}
+
+.ubc-rag-meta-box-status .dashicons {
+    vertical-align: text-bottom;
+}
+
+.ubc-rag-gutenberg-status {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    width: 100%;
+}

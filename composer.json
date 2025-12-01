@@ -6,6 +6,7 @@
     "require": {
         "smalot/pdfparser": "^2.12",
         "phpoffice/phpword": "^1.4",
-        "phpoffice/phppresentation": "^1.2"
+        "phpoffice/phppresentation": "^1.2",
+        "allanpichardo/mysql-vector": "2.0.4"
     }
 }

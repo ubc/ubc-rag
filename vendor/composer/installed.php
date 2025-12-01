@@ -3,13 +3,40 @@
         'name' => 'ubc/rag-plugin',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '5401e1ba04fb3d64a338ac17a1da58937f146975',
+        'reference' => 'c065b9b438d27a956052540694e988a268741a5c',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'allanpichardo/mysql-vector' => array(
+            'pretty_version' => '2.0.4',
+            'version' => '2.0.4.0',
+            'reference' => 'ce020410968912a0523519065907679221d945bd',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../allanpichardo/mysql-vector',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'ankane/onnxruntime' => array(
+            'pretty_version' => 'v0.2.8',
+            'version' => '0.2.8.0',
+            'reference' => '4e9a6b54d72e5988e406abbd17003562d06afa96',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ankane/onnxruntime',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'bdelespierre/php-kmeans' => array(
+            'pretty_version' => 'v2.2.0',
+            'version' => '2.2.0.0',
+            'reference' => '625f95f0c8f6b20c58fcc7566ef8a59b0b7552f3',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../bdelespierre/php-kmeans',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'composer/pcre' => array(
             'pretty_version' => '3.3.2',
             'version' => '3.3.2.0',
@@ -145,19 +172,34 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'symfony/polyfill-mbstring' => array(
-            'pretty_version' => 'v1.33.0',
-            'version' => '1.33.0.0',
-            'reference' => '6d857f4d76bd4b343eac26d6b539585d2bc56493',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../symfony/polyfill-mbstring',
-            'aliases' => array(),
+        'symfony/polyfill-ctype' => array(
             'dev_requirement' => false,
+            'replaced' => array(
+                0 => '^1.28',
+            ),
+        ),
+        'symfony/polyfill-iconv' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '^1.28',
+            ),
+        ),
+        'symfony/polyfill-intl-normalizer' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '^1.28',
+            ),
+        ),
+        'symfony/polyfill-mbstring' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '^1.28',
+            ),
         ),
         'ubc/rag-plugin' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '5401e1ba04fb3d64a338ac17a1da58937f146975',
+            'reference' => 'c065b9b438d27a956052540694e988a268741a5c',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

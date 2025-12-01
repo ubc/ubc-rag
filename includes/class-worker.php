@@ -123,12 +123,7 @@ class Worker {
 
 		// 5. Log extracted chunks (Preview).
 		Logger::log( "Generated " . count( $final_chunks ) . " final chunks using '$strategy' strategy." );
-		
-		// For debugging, log the first chunk.
-		if ( isset( $final_chunks[0] ) ) {
-			$preview = substr( $final_chunks[0]['content'], 0, 200 ) . '...';
-			Logger::log( "First Final Chunk Preview: " . $preview );
-		}
+
 
 		// 6. Generate Embeddings & Store Vectors.
 		$provider_slug = isset( $settings['embedding']['provider'] ) ? $settings['embedding']['provider'] : '';

@@ -251,6 +251,9 @@ class Admin_Menu {
 	 * @return void
 	 */
 	public function ajax_test_connection() {
+		// Log start of request
+		\UBC\RAG\Logger::log( 'AJAX Test Connection: Request received.' );
+
 		check_ajax_referer( 'ubc_rag_test_connection', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -295,7 +298,7 @@ class Admin_Menu {
 					$store = new \UBC\RAG\Vector_Stores\Qdrant_Vector_Store( $clean_settings );
 					$success = $store->test_connection();
 				} elseif ( 'mysql' === $provider_slug ) {
-					$store = new \UBC\RAG\Vector_Stores\MySQL_Vector_Store();
+					$store = new \UBC\RAG\Vector_Stores\MySQL_Vector_Lib_Store();
 					$success = $store->test_connection();
 				} else {
 					// Generic fallback if factory supports it?
@@ -319,9 +322,9 @@ class Admin_Menu {
 			}
 
 			if ( $success ) {
-				wp_send_json_success( 'Connection successful.' );
+				wp_send_json_success( array( 'message' => 'Connection successful' ) );
 			} else {
-				wp_send_json_error( 'Connection failed.' );
+				wp_send_json_error( array( 'message' => 'Connection failed' ) );
 			}
 		} catch ( \Exception $e ) {
 			wp_send_json_error( $e->getMessage() );
@@ -383,5 +386,55 @@ class Admin_Menu {
 		$count = \UBC\RAG\Retry_Queue::retry_all_failed();
 
 		wp_send_json_success( sprintf( 'Queued %d items for retry', $count ) );
+	}
+
+	/**
+	 * AJAX handler for testing search.
+	 *
+	 * @return void
+	 */
+	public function ajax_search_test() {
+		// Verify nonce
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ubc_rag_search_test' ) ) {
+			wp_send_json_error( 'Invalid nonce' );
+			return;
+		}
+
+		// Check capability
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Permission denied.' );
+			return;
+		}
+
+		$query = isset( $_POST['query'] ) ? sanitize_text_field( $_POST['query'] ) : '';
+		$limit = isset( $_POST['limit'] ) ? (int) $_POST['limit'] : 5;
+		$filter_json = isset( $_POST['filter'] ) ? stripslashes( $_POST['filter'] ) : '{}';
+		$filter = json_decode( $filter_json, true );
+
+		if ( empty( $query ) ) {
+			wp_send_json_error( 'Empty query.' );
+			return;
+		}
+
+		if ( ! is_array( $filter ) ) {
+			$filter = [];
+		}
+
+		try {
+			// Use the Public API to perform the search.
+			// This ensures we are "dogfooding" our own API.
+			if ( class_exists( '\UBC\RAG\API' ) ) {
+				$results = \UBC\RAG\API::search( $query, $limit, $filter );
+			} else {
+				// Fallback (should not happen if plugin is loaded correctly).
+				wp_send_json_error( 'API class not found.' );
+				return;
+			}
+
+			wp_send_json_success( $results );
+
+		} catch ( \Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
 	}
 }

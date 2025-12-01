@@ -75,4 +75,15 @@ interface VectorStorageInterface {
 	 * @return int|null Max chunk index or null if no vectors exist.
 	 */
 	public function get_max_chunk_index( string $collection_name, array $filter ): ?int;
+
+	/**
+	 * Search for similar vectors.
+	 *
+	 * @param string $collection_name Collection name.
+	 * @param array  $vector          Query vector.
+	 * @param int    $limit           Maximum number of results.
+	 * @param array  $filter          Metadata filter (e.g. ['content_type' => 'post']).
+	 * @return array Array of results with 'id', 'score', and 'payload'.
+	 */
+	public function query( string $collection_name, array $vector, int $limit = 5, array $filter = [] ): array;
 }

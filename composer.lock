@@ -4,8 +4,162 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "936b32c5f12ea93d97b1230c54a6fb7f",
+    "content-hash": "5001d9383a23cba976621ee5817332fd",
     "packages": [
+        {
+            "name": "allanpichardo/mysql-vector",
+            "version": "2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/allanpichardo/mysql-vector.git",
+                "reference": "ce020410968912a0523519065907679221d945bd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/allanpichardo/mysql-vector/zipball/ce020410968912a0523519065907679221d945bd",
+                "reference": "ce020410968912a0523519065907679221d945bd",
+                "shasum": ""
+            },
+            "require": {
+                "ankane/onnxruntime": "^0.2.1",
+                "bdelespierre/php-kmeans": "^2.2",
+                "ext-ctype": "*",
+                "ext-iconv": "*",
+                "ext-intl": "*",
+                "ext-mbstring": "*",
+                "ext-mysqli": "*",
+                "php": ">=8.0",
+                "symfony/polyfill-ctype": "^1.28",
+                "symfony/polyfill-iconv": "^1.28",
+                "symfony/polyfill-intl-normalizer": "^1.28",
+                "symfony/polyfill-mbstring": "^1.28"
+            },
+            "replace": {
+                "symfony/polyfill-ctype": "^1.28",
+                "symfony/polyfill-iconv": "^1.28",
+                "symfony/polyfill-intl-normalizer": "^1.28",
+                "symfony/polyfill-mbstring": "^1.28"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MHz\\MysqlVector\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Allan Pichardo",
+                    "email": "allan.pichardo@gmail.com",
+                    "homepage": "https://allanpichardo.com"
+                }
+            ],
+            "description": "Perform vector operations natively on MySQL",
+            "support": {
+                "issues": "https://github.com/allanpichardo/mysql-vector/issues",
+                "source": "https://github.com/allanpichardo/mysql-vector/tree/v2.0.4"
+            },
+            "time": "2025-01-20T22:17:45+00:00"
+        },
+        {
+            "name": "ankane/onnxruntime",
+            "version": "v0.2.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ankane/onnxruntime-php.git",
+                "reference": "4e9a6b54d72e5988e406abbd17003562d06afa96"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ankane/onnxruntime-php/zipball/4e9a6b54d72e5988e406abbd17003562d06afa96",
+                "reference": "4e9a6b54d72e5988e406abbd17003562d06afa96",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ffi": ">= 8.1",
+                "php": ">= 8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OnnxRuntime\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andrew Kane",
+                    "email": "andrew@ankane.org"
+                }
+            ],
+            "description": "Run ONNX models in PHP",
+            "support": {
+                "issues": "https://github.com/ankane/onnxruntime-php/issues",
+                "source": "https://github.com/ankane/onnxruntime-php"
+            },
+            "time": "2025-09-30T18:21:08+00:00"
+        },
+        {
+            "name": "bdelespierre/php-kmeans",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bdelespierre/php-kmeans.git",
+                "reference": "625f95f0c8f6b20c58fcc7566ef8a59b0b7552f3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bdelespierre/php-kmeans/zipball/625f95f0c8f6b20c58fcc7566ef8a59b0b7552f3",
+                "reference": "625f95f0c8f6b20c58fcc7566ef8a59b0b7552f3",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "KMeans": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Delespierre",
+                    "email": "benjamin.delespierre@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "K-Means algorithm for PHP",
+            "keywords": [
+                "clustering",
+                "kmeans",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/bdelespierre/php-kmeans/issues",
+                "source": "https://github.com/bdelespierre/php-kmeans/tree/v2.2.0"
+            },
+            "time": "2021-08-31T11:54:28+00:00"
+        },
         {
             "name": "composer/pcre",
             "version": "3.3.2",
@@ -964,91 +1118,6 @@
                 "source": "https://github.com/smalot/pdfparser/tree/v2.12.2"
             },
             "time": "2025-09-04T08:49:09+00:00"
-        },
-        {
-            "name": "symfony/polyfill-mbstring",
-            "version": "v1.33.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/6d857f4d76bd4b343eac26d6b539585d2bc56493",
-                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493",
-                "shasum": ""
-            },
-            "require": {
-                "ext-iconv": "*",
-                "php": ">=7.2"
-            },
-            "provide": {
-                "ext-mbstring": "*"
-            },
-            "suggest": {
-                "ext-mbstring": "For best performance"
-            },
-            "type": "library",
-            "extra": {
-                "thanks": {
-                    "url": "https://github.com/symfony/polyfill",
-                    "name": "symfony/polyfill"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "bootstrap.php"
-                ],
-                "psr-4": {
-                    "Symfony\\Polyfill\\Mbstring\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill for the Mbstring extension",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "mbstring",
-                "polyfill",
-                "portable",
-                "shim"
-            ],
-            "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.33.0"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nicolas-grekas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-12-23T08:48:59+00:00"
         }
     ],
     "packages-dev": [],

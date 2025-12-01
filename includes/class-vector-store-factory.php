@@ -42,16 +42,25 @@ class Vector_Store_Factory {
 	 * Constructor.
 	 */
 	private function __construct() {
-		// Register built-in stores.
-		$this->register_store( 'mysql', MySQL_Vector_Store::class );
-		// We will register Qdrant later when the class exists, or check existence here.
-		// For now, let's assume we'll create it shortly.
-		if ( class_exists( 'UBC\RAG\Vector_Stores\Qdrant_Vector_Store' ) ) {
-			$this->register_store( 'qdrant', Qdrant_Vector_Store::class );
-		}
+		$this->register_stores();
 		
 		// Allow other plugins to register stores.
 		do_action( 'ubc_rag_register_vector_stores', $this );
+	}
+
+	/**
+	 * Register built-in stores.
+	 *
+	 * @return void
+	 */
+	private function register_stores() {
+		$this->register_store( 'mysql', MySQL_Vector_Lib_Store::class );
+		
+		// We will register Qdrant later when the class exists, or check existence here.
+		// For now, let's assume we'll create it shortly.
+		if ( class_exists( 'UBC\RAG\Vector_Stores\Qdrant_Vector_Store' ) ) {
+			$this->register_store( 'qdrant', \UBC\RAG\Vector_Stores\Qdrant_Vector_Store::class );
+		}
 	}
 
 	/**
@@ -109,5 +118,18 @@ class Vector_Store_Factory {
 	 */
 	public function get_registered_stores() {
 		return $this->stores;
+	}
+
+	/**
+	 * Get the standardized collection name.
+	 * Format: site_{blog_id}_{hash}
+	 *
+	 * @return string
+	 */
+	public function get_collection_name() {
+		$blog_id  = get_current_blog_id();
+		$site_url = get_site_url();
+		$hash     = substr( hash( 'sha256', $site_url ), 0, 8 );
+		return "site_{$blog_id}_{$hash}";
 	}
 }

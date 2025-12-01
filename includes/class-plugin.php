@@ -50,12 +50,8 @@ class Plugin {
 	 */
 	private function define_admin_hooks() {
 		if ( is_admin() ) {
-			$admin_menu = new Admin_Menu();
-			add_action( 'admin_menu', [ $admin_menu, 'add_menu' ] );
-			add_action( 'admin_init', [ $admin_menu, 'register_settings' ] );
-			add_action( 'wp_ajax_ubc_rag_test_connection', [ $admin_menu, 'ajax_test_connection' ] );
-			add_action( 'wp_ajax_rag_retry_item', [ $admin_menu, 'ajax_retry_item' ] );
-			add_action( 'wp_ajax_rag_retry_all', [ $admin_menu, 'ajax_retry_all' ] );
+			$admin = new \UBC\RAG\Admin\Admin();
+			$admin->init();
 		}
 	}
 
@@ -87,7 +83,6 @@ class Plugin {
 		add_action( 'ubc_rag_register_chunkers', [ $this, 'register_chunkers' ] );
 
 		// Initialize Chunker Factory.
-		// Initialize Chunker Factory.
 		\UBC\RAG\Chunker_Factory::get_instance()->init();
 
 		// Register default embedding providers.
@@ -95,6 +90,16 @@ class Plugin {
 
 		// Initialize Embedding Factory.
 		\UBC\RAG\Embedding_Factory::get_instance()->init();
+
+		// Register meta keys.
+		register_meta( 'post', '_ubc_rag_skip_indexing', [
+			'show_in_rest' => true,
+			'single'       => true,
+			'type'         => 'boolean',
+			'auth_callback' => function() {
+				return current_user_can( 'edit_posts' );
+			}
+		] );
 	}
 
 	/**
@@ -134,6 +139,7 @@ class Plugin {
 	public function register_embedding_providers( $factory ) {
 		$factory->register_provider( 'openai', '\UBC\RAG\Embeddings\OpenAI_Provider' );
 		$factory->register_provider( 'ollama', '\UBC\RAG\Embeddings\Ollama_Provider' );
+		$factory->register_provider( 'mysql_vector', '\UBC\RAG\Embeddings\MySQL_Vector_Embedding_Provider' );
 	}
 
 	/**

@@ -56,9 +56,71 @@ class Docx_Extractor extends Abstract_Extractor {
 				],
 			];
 		} catch ( \Throwable $e ) {
-			$this->handle_error( "DOCX Parsing Error: " . $e->getMessage() );
+			$this->handle_error( "DOCX Parsing Error: " . $e->getMessage() . ". Attempting fallback extraction." );
+			return $this->fallback_extract( $file_path );
+		}
+	}
+
+	/**
+	 * Fallback extraction using ZipArchive and XML parsing.
+	 *
+	 * @param string $file_path Path to the DOCX file.
+	 * @return array Extracted chunks.
+	 */
+	private function fallback_extract( $file_path ): array {
+		if ( ! class_exists( 'ZipArchive' ) ) {
+			$this->handle_error( "ZipArchive class not found. Cannot perform fallback extraction." );
 			return [];
 		}
+
+		$zip = new \ZipArchive();
+		if ( true !== $zip->open( $file_path ) ) {
+			$this->handle_error( "Could not open DOCX as zip archive." );
+			return [];
+		}
+
+		// Try to find the main document XML.
+		$xml_content = $zip->getFromName( 'word/document.xml' );
+		$zip->close();
+
+		if ( ! $xml_content ) {
+			$this->handle_error( "Could not find word/document.xml in DOCX archive." );
+			return [];
+		}
+
+		// Parse XML.
+		$dom = new \DOMDocument();
+		// Suppress warnings for invalid XML structure (which is likely why the main library failed).
+		libxml_use_internal_errors( true );
+		$dom->loadXML( $xml_content );
+		libxml_clear_errors();
+
+		$xpath = new \DOMXPath( $dom );
+		$xpath->registerNamespace( 'w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' );
+
+		// Extract all text nodes (<w:t>).
+		$nodes = $xpath->query( '//w:t' );
+		$text = '';
+
+		foreach ( $nodes as $node ) {
+			$text .= $node->nodeValue . ' ';
+		}
+
+		$text = trim( $text );
+
+		if ( empty( $text ) ) {
+			$this->handle_error( "Fallback extraction yielded no text." );
+			return [];
+		}
+
+		$this->log( "Successfully performed fallback extraction for DOCX." );
+
+		return [
+			[
+				'content'  => $text,
+				'metadata' => [ 'page' => 1, 'extraction_method' => 'fallback' ],
+			],
+		];
 	}
 
 	/**

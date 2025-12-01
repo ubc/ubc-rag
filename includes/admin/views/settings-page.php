@@ -7,6 +7,7 @@
 		<a href="?page=ubc-rag-settings&tab=chunking" class="nav-tab <?php echo $active_tab === 'chunking' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Chunking', 'ubc-rag' ); ?></a>
 		<a href="?page=ubc-rag-settings&tab=embedding" class="nav-tab <?php echo $active_tab === 'embedding' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Embedding', 'ubc-rag' ); ?></a>
 		<a href="?page=ubc-rag-settings&tab=storage" class="nav-tab <?php echo $active_tab === 'storage' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Storage', 'ubc-rag' ); ?></a>
+		<a href="?page=ubc-rag-settings&tab=search" class="nav-tab <?php echo $active_tab === 'search' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Search', 'ubc-rag' ); ?></a>
 		<a href="?page=ubc-rag-settings&tab=advanced" class="nav-tab <?php echo $active_tab === 'advanced' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Advanced', 'ubc-rag' ); ?></a>
 	</h2>
 
@@ -27,6 +28,9 @@
 				break;
 			case 'storage':
 				require_once plugin_dir_path( __FILE__ ) . 'storage-tab.php';
+				break;
+			case 'search':
+				require_once plugin_dir_path( __FILE__ ) . 'search-tab.php';
 				break;
 			case 'advanced':
 				require_once plugin_dir_path( __FILE__ ) . 'advanced-tab.php';

@@ -84,6 +84,29 @@ $current_provider = $settings['embedding']['provider'];
 		</table>
 	</div>
 
+	<!-- MySQL Vector Embedding Settings -->
+	<div class="provider-settings" id="provider-settings-mysql_vector" style="<?php echo 'mysql_vector' === $current_provider ? '' : 'display:none;'; ?>">
+		<h3><?php esc_html_e( 'MySQL Vector Embedding Settings', 'ubc-rag' ); ?></h3>
+		<p><?php esc_html_e( 'Uses the local mysql-vector library (BGE model). No API key required.', 'ubc-rag' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Note: This runs locally on your server. Ensure you have sufficient memory (approx 100MB+ per process).', 'ubc-rag' ); ?></p>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Connection', 'ubc-rag' ); ?></th>
+				<td>
+					<button type="button" class="button button-secondary" id="test-mysql-vector-connection"><?php esc_html_e( 'Test Generation', 'ubc-rag' ); ?></button>
+					<span id="mysql-vector-connection-result" style="margin-left: 10px;"></span>
+					<p class="description">
+						<?php
+						$ffi_loaded = extension_loaded( 'ffi' );
+						$ffi_enable = ini_get( 'ffi.enable' );
+						echo '<strong>FFI Status:</strong> ' . ( $ffi_loaded ? 'Loaded' : 'Not Loaded' ) . ' | <strong>ffi.enable:</strong> ' . esc_html( $ffi_enable );
+						?>
+					</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+
 	<!-- OpenAI Settings -->
 	<div class="provider-settings" id="provider-settings-openai" style="<?php echo 'openai' === $current_provider ? '' : 'display:none;'; ?>">
 		<h3><?php esc_html_e( 'OpenAI Settings', 'ubc-rag' ); ?></h3>
@@ -116,7 +139,7 @@ $current_provider = $settings['embedding']['provider'];
 			<tr>
 				<th scope="row"><label for="rag_openai_use_batch_api"><?php esc_html_e( 'Use Batch API', 'ubc-rag' ); ?></label></th>
 				<td>
-					<input name="<?php echo esc_attr( \UBC\RAG\Settings::OPTION_KEY ); ?>[embedding][openai][use_batch_api]" type="checkbox" id="rag_openai_use_batch_api" value="1" <?php checked( $settings['embedding']['openai']['use_batch_api'] ); ?>>
+					<input name="<?php echo esc_attr( \UBC\RAG\Settings::OPTION_KEY ); ?>[embedding][openai][use_batch_api]" type="checkbox" id="rag_openai_use_batch_api" value="1" <?php checked( isset( $settings['embedding']['openai']['use_batch_api'] ) ? $settings['embedding']['openai']['use_batch_api'] : 0 ); ?>>
 					<label for="rag_openai_use_batch_api"><?php esc_html_e( 'Enable for bulk indexing (cheaper but slower)', 'ubc-rag' ); ?></label>
 					<p class="description"><?php esc_html_e( 'Batch API costs 50% less but processes asynchronously (takes minutes/hours). Only recommended for large bulk operations.', 'ubc-rag' ); ?></p>
 				</td>
@@ -207,6 +230,41 @@ $current_provider = $settings['embedding']['provider'];
 				data.append('provider', 'openai');
 				data.append('settings[api_key]', apiKey);
 				data.append('settings[model]', model);
+				data.append('nonce', '<?php echo wp_create_nonce( 'ubc_rag_test_connection' ); ?>');
+
+				fetch(ajaxurl, {
+					method: 'POST',
+					body: data
+				})
+				.then(response => response.json())
+				.then(response => {
+					if (response.success) {
+						resultSpan.textContent = '<?php esc_html_e( 'Success!', 'ubc-rag' ); ?>';
+						resultSpan.style.color = 'green';
+					} else {
+						resultSpan.textContent = '<?php esc_html_e( 'Failed: ', 'ubc-rag' ); ?>' + (response.data || 'Unknown error');
+						resultSpan.style.color = 'red';
+					}
+				})
+				.catch(error => {
+					resultSpan.textContent = '<?php esc_html_e( 'Error: ', 'ubc-rag' ); ?>' + error;
+					resultSpan.style.color = 'red';
+				});
+			});
+		}
+
+		// Handle Test Connection for MySQL Vector Embedding
+		const testMysqlVectorBtn = document.getElementById('test-mysql-vector-connection');
+		if (testMysqlVectorBtn) {
+			testMysqlVectorBtn.addEventListener('click', function() {
+				const resultSpan = document.getElementById('mysql-vector-connection-result');
+
+				resultSpan.textContent = '<?php esc_html_e( 'Testing...', 'ubc-rag' ); ?>';
+				resultSpan.style.color = '#666';
+
+				const data = new FormData();
+				data.append('action', 'ubc_rag_test_connection');
+				data.append('provider', 'mysql_vector');
 				data.append('nonce', '<?php echo wp_create_nonce( 'ubc_rag_test_connection' ); ?>');
 
 				fetch(ajaxurl, {

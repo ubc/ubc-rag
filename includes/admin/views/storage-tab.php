@@ -28,10 +28,10 @@ $current_store = isset( $settings['vector_store']['provider'] ) ? $settings['vec
 
 	<hr>
 
-	<!-- MySQL Settings -->
+	<!-- MySQL Vector Settings -->
 	<div class="store-settings" id="store-settings-mysql" style="<?php echo 'mysql' === $current_store ? '' : 'display:none;'; ?>">
 		<h3><?php esc_html_e( 'MySQL Vector Settings', 'ubc-rag' ); ?></h3>
-		<p><?php esc_html_e( 'Uses the local WordPress database. No additional configuration required.', 'ubc-rag' ); ?></p>
+		<p><?php esc_html_e( 'Uses the mysql-vector library with optimized storage and operations.', 'ubc-rag' ); ?></p>
 		<table class="form-table" role="presentation">
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Connection', 'ubc-rag' ); ?></th>
@@ -66,10 +66,7 @@ $current_store = isset( $settings['vector_store']['provider'] ) ? $settings['vec
 				<td>
 					<?php
 					// Calculate the standardized collection name for display.
-					$blog_id = get_current_blog_id();
-					$site_url = get_site_url();
-					$hash = substr( hash( 'sha256', $site_url ), 0, 8 );
-					$collection_name = "site_{$blog_id}_{$hash}";
+					$collection_name = \UBC\RAG\Vector_Store_Factory::get_instance()->get_collection_name();
 					?>
 					<input type="text" id="rag_qdrant_collection" value="<?php echo esc_attr( $collection_name ); ?>" class="regular-text" readonly>
 					<p class="description"><?php esc_html_e( 'Auto-generated collection name (site_{blog_id}_{hash}). Cannot be changed.', 'ubc-rag' ); ?></p>
@@ -170,6 +167,42 @@ $current_store = isset( $settings['vector_store']['provider'] ) ? $settings['vec
 				data.append('action', 'ubc_rag_test_connection');
 				data.append('type', 'vector_store');
 				data.append('provider', 'mysql');
+				data.append('nonce', '<?php echo wp_create_nonce( 'ubc_rag_test_connection' ); ?>');
+
+				fetch(ajaxurl, {
+					method: 'POST',
+					body: data
+				})
+				.then(response => response.json())
+				.then(response => {
+					if (response.success) {
+						resultSpan.textContent = '<?php esc_html_e( 'Success!', 'ubc-rag' ); ?>';
+						resultSpan.style.color = 'green';
+					} else {
+						resultSpan.textContent = '<?php esc_html_e( 'Failed: ', 'ubc-rag' ); ?>' + (response.data || 'Unknown error');
+						resultSpan.style.color = 'red';
+					}
+				})
+				.catch(error => {
+					resultSpan.textContent = '<?php esc_html_e( 'Error: ', 'ubc-rag' ); ?>' + error;
+					resultSpan.style.color = 'red';
+				});
+			});
+		}
+
+		// Handle Test Connection for MySQL Vector Library
+		const testMysqlLibBtn = document.getElementById('test-mysql-lib-connection');
+		if (testMysqlLibBtn) {
+			testMysqlLibBtn.addEventListener('click', function() {
+				const resultSpan = document.getElementById('mysql-lib-connection-result');
+
+				resultSpan.textContent = '<?php esc_html_e( 'Testing...', 'ubc-rag' ); ?>';
+				resultSpan.style.color = '#666';
+
+				const data = new FormData();
+				data.append('action', 'ubc_rag_test_connection');
+				data.append('type', 'vector_store');
+				data.append('provider', 'mysql_vector_lib');
 				data.append('nonce', '<?php echo wp_create_nonce( 'ubc_rag_test_connection' ); ?>');
 
 				fetch(ajaxurl, {

@@ -68,6 +68,19 @@ class OpenAI_Provider implements EmbeddingProviderInterface {
 	}
 
 	/**
+	 * Generate embeddings for a batch of chunks.
+	 *
+	 * @param array $chunks   Array of chunk data.
+	 * @param array $settings Provider-specific settings.
+	 * @return array Array of embeddings.
+	 * @throws \Exception On failure.
+	 */
+	public function embed_batch( array $chunks, array $settings ): array {
+		// OpenAI handles batching natively in embed(), so we just call that.
+		return $this->embed( $chunks, $settings );
+	}
+
+	/**
 	 * Generate embeddings using the regular OpenAI API.
 	 *
 	 * Batches up to 2048 inputs per request for cost efficiency.

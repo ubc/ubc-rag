@@ -160,4 +160,42 @@ class Status {
 
 		return $stats;
 	}
+
+	/**
+	 * Get status label.
+	 *
+	 * @param string $status Status key.
+	 * @return string Status label.
+	 */
+	public static function get_status_label( $status ) {
+		$labels = [
+			'queued'     => __( 'Queued', 'ubc-rag' ),
+			'processing' => __( 'Processing', 'ubc-rag' ),
+			'indexed'    => __( 'Indexed', 'ubc-rag' ),
+			'failed'     => __( 'Failed', 'ubc-rag' ),
+		];
+
+		return isset( $labels[ $status ] ) ? $labels[ $status ] : ucfirst( $status );
+	}
+
+	/**
+	 * Get status icon.
+	 *
+	 * @param string $status Status key.
+	 * @return string Status icon HTML.
+	 */
+	public static function get_status_icon( $status ) {
+		switch ( $status ) {
+			case 'indexed':
+				return '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>';
+			case 'processing':
+				return '<span class="dashicons dashicons-update" style="color: #f0ad4e;"></span>';
+			case 'queued':
+				return '<span class="dashicons dashicons-clock" style="color: #999;"></span>';
+			case 'failed':
+				return '<span class="dashicons dashicons-warning" style="color: #dc3232;"></span>';
+			default:
+				return '<span class="dashicons dashicons-minus"></span>';
+		}
+	}
 }

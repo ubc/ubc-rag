@@ -2,7 +2,7 @@
 
 ## Overview
 
-The OpenAI Embedding Provider enables the UBC RAG plugin to generate vector embeddings using OpenAI's state-of-the-art embedding models via their REST API.
+The OpenAI Embedding Provider enables the UBC RAG plugin to generate vector embeddings using OpenAI's embedding models via their REST API.
 
 ## Getting Started
 
@@ -33,11 +33,6 @@ The OpenAI Embedding Provider enables the UBC RAG plugin to generate vector embe
 | **3-large** | 3072 | 💰 2x cost | ✅✅✅✅ | ⚡⚡ | Large knowledge bases, max quality |
 | **ada-002** | 1536 | ~ Same | ✅✅✅ | ⚡⚡⚡ | Legacy, don't use for new projects |
 
-## API Pricing (as of 2024)
-
-- **text-embedding-3-small**: $0.02 per 1M tokens
-- **text-embedding-3-large**: $0.13 per 1M tokens
-
 ### Cost Estimation
 
 Example: Indexing 10,000 posts with average 2,000 words each
@@ -60,7 +55,7 @@ Example: Indexing 10,000 posts with average 2,000 words each
 
 ### Batch API (Future Enhancement)
 
-- **Cost**: 50% cheaper than regular API
+- **Cost**: Cheaper than regular API
 - **Speed**: Asynchronous (takes minutes to hours)
 - **Best for**: Large bulk re-indexing operations
 
@@ -113,12 +108,7 @@ try {
 
 ### API Key Storage
 
-Currently, API keys are stored in WordPress options (same location as other settings). For high-security environments, consider:
-
-1. **Future Enhancement**: Implement encryption at rest using WordPress keys/salts
-2. **Current Best Practice**: Use WordPress capability checks (`manage_options`)
-3. **Production**: Keep API keys in separate .env file via constants
-4. **Rotation**: Regularly rotate API keys via OpenAI dashboard
+Currently, API keys are stored in WordPress options (same location as other settings).
 
 ### Password Field Display
 
@@ -167,62 +157,3 @@ If you hit rate limits, increase the time limit between processing jobs.
 - Process timing is 20 seconds per ActionScheduler job (5 chunks per job)
 - Normal behavior for first bulk index - it's asynchronous
 - Speed improves after initial index for incremental updates
-
-## Limitations
-
-### Current (MVP)
-
-- Batch API falls back to regular API (async polling not yet implemented)
-- No fine-tuning of embeddings
-- No custom model support
-- Fixed dimensions per model (cannot override)
-
-### OpenAI API Limits
-
-- Maximum 2048 texts per request
-- Maximum 8,191 tokens per text
-- Very long documents will be split across requests automatically
-
-### Cost Optimization
-
-If you want 50% cost savings:
-- Batch API will be available in future phase
-- Requires patience for async processing (minutes to hours)
-- Suitable for scheduled nightly re-indexing
-
-## Best Practices
-
-1. **Test First**: Use "Test Connection" button before bulk indexing
-2. **Start Small**: Index a few posts first to verify configuration
-3. **Monitor Costs**: Check OpenAI dashboard usage regularly
-4. **Use 3-small**: Start with smallest model, upgrade if needed
-5. **Chunking Strategy**: Smaller chunks = more API calls = higher cost
-   - Paragraph chunking: ~$0.40 per 10,000 posts
-   - Sentence chunking: ~$0.60 per 10,000 posts
-   - Character chunking: ~$1.50 per 10,000 posts
-
-## Monitoring
-
-Check `/wp-content/rag-debug.log` for:
-- Successful embeddings
-- API errors
-- Rate limiting warnings
-- Performance metrics
-
-Example log entries:
-```
-[2025-11-26 14:23:15] Starting embedding from index 0 of 150.
-[2025-11-26 14:23:18] Embedded and stored batch ending at index 4
-[2025-11-26 14:23:25] Successfully indexed post 123.
-```
-
-## Support & Resources
-
-- [OpenAI API Docs](https://platform.openai.com/docs/guides/embeddings)
-- [OpenAI Pricing](https://openai.com/pricing)
-- [UBC RAG Plugin Docs](https://github.com/ubc-ctlt/ubc-rag)
-- UBC CTLT Support: [ctlt@ubc.ca](mailto:ctlt@ubc.ca)
-
----
-
-**Next Step**: After configuring OpenAI, configure your vector storage (Qdrant or MySQL Vector) in the Storage tab.
