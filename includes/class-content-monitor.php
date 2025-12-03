@@ -171,4 +171,103 @@ class Content_Monitor {
 
 		Queue::push( $link_id, 'link', 'delete' );
 	}
+
+	/**
+	 * Static handler for content publication/creation.
+	 *
+	 * Called when content is first published or created.
+	 * Used by extractors via the ubc_rag_setup_lifecycle_hooks action.
+	 *
+	 * @param int    $content_id   Content ID (post ID, link ID, comment ID, etc.).
+	 * @param string $content_type Content type (post, page, link, comment, etc.).
+	 * @return void
+	 *
+	 * @example
+	 * add_action( 'comment_post', function( $comment_id, $comment ) {
+	 *     Content_Monitor::on_content_publish( $comment_id, 'comment' );
+	 * }, 10, 2 );
+	 */
+	public static function on_content_publish( $content_id, $content_type ) {
+		if ( ! $content_id || ! $content_type ) {
+			return;
+		}
+
+		// Check if content type is enabled.
+		if ( ! Content_Type_Helper::is_content_type_enabled( $content_type ) ) {
+			return;
+		}
+
+		Logger::log( sprintf( 'Content published: %d (%s)', $content_id, $content_type ) );
+
+		// Update status to queued.
+		Status::set_status( $content_id, $content_type, 'queued' );
+
+		// Push to queue.
+		Queue::push( $content_id, $content_type, 'update' );
+	}
+
+	/**
+	 * Static handler for content updates/edits.
+	 *
+	 * Called when content is updated or edited.
+	 * Used by extractors via the ubc_rag_setup_lifecycle_hooks action.
+	 *
+	 * @param int    $content_id   Content ID (post ID, link ID, comment ID, etc.).
+	 * @param string $content_type Content type (post, page, link, comment, etc.).
+	 * @return void
+	 *
+	 * @example
+	 * add_action( 'edit_comment', function( $comment_id, $comment ) {
+	 *     Content_Monitor::on_content_update( $comment_id, 'comment' );
+	 * }, 10, 2 );
+	 */
+	public static function on_content_update( $content_id, $content_type ) {
+		if ( ! $content_id || ! $content_type ) {
+			return;
+		}
+
+		// Check if content type is enabled.
+		if ( ! Content_Type_Helper::is_content_type_enabled( $content_type ) ) {
+			return;
+		}
+
+		Logger::log( sprintf( 'Content updated: %d (%s)', $content_id, $content_type ) );
+
+		// Update status to queued.
+		Status::set_status( $content_id, $content_type, 'queued' );
+
+		// Push to queue.
+		Queue::push( $content_id, $content_type, 'update' );
+	}
+
+	/**
+	 * Static handler for content deletion.
+	 *
+	 * Called when content is deleted.
+	 * Used by extractors via the ubc_rag_setup_lifecycle_hooks action.
+	 *
+	 * @param int    $content_id   Content ID (post ID, link ID, comment ID, etc.).
+	 * @param string $content_type Content type (post, page, link, comment, etc.).
+	 * @return void
+	 *
+	 * @example
+	 * add_action( 'delete_comment', function( $comment_id ) {
+	 *     Content_Monitor::on_content_delete( $comment_id, 'comment' );
+	 * }, 10, 1 );
+	 */
+	public static function on_content_delete( $content_id, $content_type ) {
+		if ( ! $content_id || ! $content_type ) {
+			return;
+		}
+
+		// Check if content type is enabled.
+		if ( ! Content_Type_Helper::is_content_type_enabled( $content_type ) ) {
+			return;
+		}
+
+		Logger::log( sprintf( 'Content deleted: %d (%s)', $content_id, $content_type ) );
+
+		// Push delete job to queue.
+		Queue::push( $content_id, $content_type, 'delete' );
+	}
 }

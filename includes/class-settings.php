@@ -109,6 +109,15 @@ class Settings {
 						'overlap'    => 200,
 					],
 				],
+				'comment' => [
+					'enabled'           => false,
+					'auto_index'        => false,
+					'chunking_strategy' => 'paragraph',
+					'chunking_settings' => [
+						'chunk_size' => 500,
+						'overlap'    => 100,
+					],
+				],
 			],
 			'content_options' => [
 				'include_excerpts'                     => true,

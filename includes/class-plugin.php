@@ -97,6 +97,12 @@ class Plugin {
 		// Initialize Content Type Factory.
 		\UBC\RAG\Content_Type_Factory::get_instance()->init();
 
+		// Register default lifecycle hooks.
+		add_action( 'ubc_rag_setup_lifecycle_hooks', [ $this, 'register_lifecycle_hooks' ] );
+
+		// Fire the lifecycle hooks setup action.
+		do_action( 'ubc_rag_setup_lifecycle_hooks' );
+
 		// Register meta keys.
 		register_meta( 'post', '_ubc_rag_skip_indexing', [
 			'show_in_rest' => true,
@@ -117,6 +123,7 @@ class Plugin {
 		$factory->register_extractor( 'post', '\UBC\RAG\Extractors\Post_Extractor' );
 		$factory->register_extractor( 'page', '\UBC\RAG\Extractors\Post_Extractor' );
 		$factory->register_extractor( 'link', '\UBC\RAG\Extractors\Link_Extractor' );
+		$factory->register_extractor( 'comment', '\UBC\RAG\Extractors\Comment_Extractor' );
 		$factory->register_extractor( 'application/pdf', '\UBC\RAG\Extractors\PDF_Extractor' );
 		$factory->register_extractor( 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '\UBC\RAG\Extractors\Docx_Extractor' );
 		$factory->register_extractor( 'application/vnd.openxmlformats-officedocument.presentationml.presentation', '\UBC\RAG\Extractors\Pptx_Extractor' );
@@ -182,6 +189,113 @@ class Plugin {
 			'extractor'        => 'link',
 			'default_enabled'  => false,
 		] );
+
+		$factory->register_content_type( 'comment', [
+			'label'            => __( 'Comments', 'ubc-rag' ),
+			'description'      => __( 'Blog post comments', 'ubc-rag' ),
+			'extractor'        => 'comment',
+			'default_enabled'  => false,
+		] );
+	}
+
+	/**
+	 * Register default lifecycle hooks.
+	 *
+	 * Sets up WordPress lifecycle hooks (save, edit, delete) for built-in content types.
+	 * External plugins can hook into 'ubc_rag_setup_lifecycle_hooks' to register their own hooks.
+	 *
+	 * @return void
+	 */
+	public function register_lifecycle_hooks() {
+		// Posts and Pages - save_post hook is used for both create and update
+		add_action( 'save_post', function( $post_id, $post, $update ) {
+			if ( ! in_array( $post->post_type, [ 'post', 'page' ], true ) ) {
+				return;
+			}
+
+			// Ignore auto-saves and revisions.
+			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+				return;
+			}
+			if ( wp_is_post_revision( $post_id ) ) {
+				return;
+			}
+
+			// Debounce: Check if we've already processed this post in this request.
+			static $processed_posts = [];
+			if ( isset( $processed_posts[ $post_id ] ) ) {
+				return;
+			}
+			$processed_posts[ $post_id ] = true;
+
+			// Only index published posts.
+			if ( 'publish' !== $post->post_status ) {
+				return;
+			}
+
+			// Call appropriate handler based on whether this is a new post or an update.
+			if ( $update ) {
+				Content_Monitor::on_content_update( $post_id, $post->post_type );
+			} else {
+				Content_Monitor::on_content_publish( $post_id, $post->post_type );
+			}
+		}, 10, 3 );
+
+		// Posts - deletion hooks
+		add_action( 'wp_trash_post', function( $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post || ! in_array( $post->post_type, [ 'post', 'page' ], true ) ) {
+				return;
+			}
+			Content_Monitor::on_content_delete( $post_id, $post->post_type );
+		} );
+
+		add_action( 'before_delete_post', function( $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post || ! in_array( $post->post_type, [ 'post', 'page' ], true ) ) {
+				return;
+			}
+			Content_Monitor::on_content_delete( $post_id, $post->post_type );
+		} );
+
+		// Attachments
+		add_action( 'add_attachment', function( $post_id ) {
+			Content_Monitor::on_content_publish( $post_id, 'attachment' );
+		} );
+
+		add_action( 'edit_attachment', function( $post_id ) {
+			Content_Monitor::on_content_update( $post_id, 'attachment' );
+		} );
+
+		add_action( 'delete_attachment', function( $post_id ) {
+			Content_Monitor::on_content_delete( $post_id, 'attachment' );
+		} );
+
+		// Links/Bookmarks
+		add_action( 'add_link', function( $link_id ) {
+			Content_Monitor::on_content_publish( $link_id, 'link' );
+		} );
+
+		add_action( 'edit_link', function( $link_id ) {
+			Content_Monitor::on_content_update( $link_id, 'link' );
+		} );
+
+		add_action( 'delete_link', function( $link_id ) {
+			Content_Monitor::on_content_delete( $link_id, 'link' );
+		} );
+
+		// Comments
+		add_action( 'comment_post', function( $comment_id, $comment ) {
+			Content_Monitor::on_content_publish( $comment_id, 'comment' );
+		}, 10, 2 );
+
+		add_action( 'edit_comment', function( $comment_id, $comment ) {
+			Content_Monitor::on_content_update( $comment_id, 'comment' );
+		}, 10, 2 );
+
+		add_action( 'delete_comment', function( $comment_id ) {
+			Content_Monitor::on_content_delete( $comment_id, 'comment' );
+		}, 10, 1 );
 	}
 
 	/**

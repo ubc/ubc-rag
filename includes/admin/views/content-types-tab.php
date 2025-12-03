@@ -4,19 +4,37 @@
  */
 
 $settings = \UBC\RAG\Settings::get_settings();
+
+// Get all registered content types from the factory.
+$factory = \UBC\RAG\Content_Type_Factory::get_instance();
+$registered_types = $factory->get_registered_content_types();
+
+// Build list of content types to display.
 $post_types = get_post_types( [ 'public' => true ], 'objects' );
-// Add attachment if not present (it's usually not public in the same way)
+
+// Add attachment if not present (it's usually not public in the same way).
 if ( ! isset( $post_types['attachment'] ) ) {
 	$post_types['attachment'] = get_post_type_object( 'attachment' );
 }
-// Add link if link manager is enabled
-if ( \UBC\RAG\Content_Type_Helper::is_link_manager_enabled() ) {
-	// Create a pseudo post type object for links
-	$link_type = new \stdClass();
-	$link_type->name = 'link';
-	$link_type->labels = new \stdClass();
-	$link_type->labels->name = __( 'Links/Bookmarks', 'ubc-rag' );
-	$post_types['link'] = $link_type;
+
+// Add non-post-type content types from the factory (links, comments, etc.).
+foreach ( $registered_types as $slug => $type_data ) {
+	// Skip if it's already a post type.
+	if ( isset( $post_types[ $slug ] ) ) {
+		continue;
+	}
+
+	// Skip links if link manager is not enabled.
+	if ( 'link' === $slug && ! \UBC\RAG\Content_Type_Helper::is_link_manager_enabled() ) {
+		continue;
+	}
+
+	// Create a pseudo post type object for this content type.
+	$pseudo_type = new \stdClass();
+	$pseudo_type->name = $slug;
+	$pseudo_type->labels = new \stdClass();
+	$pseudo_type->labels->name = $type_data['label'];
+	$post_types[ $slug ] = $pseudo_type;
 }
 ?>
 
