@@ -100,15 +100,11 @@ class Worker {
 
 		// 4. Chunk Content.
 		$settings = Settings::get_settings();
-		$content_type_config = isset( $settings['content_types'][ $content_type ] )
-			? $settings['content_types'][ $content_type ]
-			: [];
-		$strategy = isset( $content_type_config['chunking_strategy'] )
-			? $content_type_config['chunking_strategy']
-			: 'paragraph'; // Fallback if not configured
-		$chunk_settings = isset( $content_type_config['chunking_settings'] )
-			? $content_type_config['chunking_settings']
-			: [ 'chunk_size' => 3 ]; // Default
+		$strategy = Content_Type_Helper::get_chunking_strategy( $content_type );
+		$chunk_settings = Content_Type_Helper::get_chunking_settings( $content_type );
+		if ( empty( $chunk_settings ) ) {
+			$chunk_settings = [ 'chunk_size' => 3 ]; // Default
+		}
 
 		$chunker_factory = Chunker_Factory::get_instance();
 		$chunker = $chunker_factory->get_chunker( $strategy );

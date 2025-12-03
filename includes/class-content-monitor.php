@@ -20,6 +20,11 @@ class Content_Monitor {
 		add_action( 'add_attachment', [ $this, 'handle_save_attachment' ] );
 		add_action( 'edit_attachment', [ $this, 'handle_save_attachment' ] );
 		add_action( 'delete_attachment', [ $this, 'handle_delete_attachment' ] );
+
+		// Links/Bookmarks.
+		add_action( 'add_link', [ $this, 'handle_save_link' ] );
+		add_action( 'edit_link', [ $this, 'handle_save_link' ] );
+		add_action( 'delete_link', [ $this, 'handle_delete_link' ] );
 	}
 
 	/**
@@ -47,10 +52,9 @@ class Content_Monitor {
 		$processed_posts[ $post_id ] = true;
 
 		// Check if content type is enabled.
-		$settings = Settings::get_settings();
 		$post_type = $post->post_type;
 
-		if ( ! isset( $settings['content_types'][ $post_type ] ) || ! $settings['content_types'][ $post_type ]['enabled'] ) {
+		if ( ! Content_Type_Helper::is_content_type_enabled( $post_type ) ) {
 			return;
 		}
 
@@ -86,8 +90,7 @@ class Content_Monitor {
 		$post_type = $post->post_type;
 
 		// Check settings (though for delete we might want to clean up regardless).
-		$settings = Settings::get_settings();
-		if ( ! isset( $settings['content_types'][ $post_type ] ) || ! $settings['content_types'][ $post_type ]['enabled'] ) {
+		if ( ! Content_Type_Helper::is_content_type_enabled( $post_type ) ) {
 			return;
 		}
 
@@ -104,8 +107,7 @@ class Content_Monitor {
 	 * @return void
 	 */
 	public function handle_save_attachment( $post_id ) {
-		$settings = Settings::get_settings();
-		if ( ! isset( $settings['content_types']['attachment'] ) || ! $settings['content_types']['attachment']['enabled'] ) {
+		if ( ! Content_Type_Helper::is_content_type_enabled( 'attachment' ) ) {
 			return;
 		}
 
@@ -122,13 +124,51 @@ class Content_Monitor {
 	 * @return void
 	 */
 	public function handle_delete_attachment( $post_id ) {
-		$settings = Settings::get_settings();
-		if ( ! isset( $settings['content_types']['attachment'] ) || ! $settings['content_types']['attachment']['enabled'] ) {
+		if ( ! Content_Type_Helper::is_content_type_enabled( 'attachment' ) ) {
 			return;
 		}
 
 		Logger::log( sprintf( 'Attachment deleted: %d', $post_id ) );
 
 		Queue::push( $post_id, 'attachment', 'delete' );
+	}
+
+	/**
+	 * Handle link creation or update.
+	 *
+	 * @param int $link_id Link ID.
+	 * @return void
+	 */
+	public function handle_save_link( $link_id ) {
+		// Check if link manager is enabled.
+		if ( ! Content_Type_Helper::is_link_manager_enabled() ) {
+			return;
+		}
+
+		if ( ! Content_Type_Helper::is_content_type_enabled( 'link' ) ) {
+			return;
+		}
+
+		Logger::log( sprintf( 'Link saved: %d', $link_id ) );
+
+		Status::set_status( $link_id, 'link', 'queued' );
+		Queue::push( $link_id, 'link', 'update' );
+	}
+
+	/**
+	 * Handle link deletion.
+	 *
+	 * @param int $link_id Link ID.
+	 * @return void
+	 */
+	public function handle_delete_link( $link_id ) {
+		// Check if link manager is enabled (for consistency, though link may already be deleted).
+		if ( ! Content_Type_Helper::is_content_type_enabled( 'link' ) ) {
+			return;
+		}
+
+		Logger::log( sprintf( 'Link deleted: %d', $link_id ) );
+
+		Queue::push( $link_id, 'link', 'delete' );
 	}
 }

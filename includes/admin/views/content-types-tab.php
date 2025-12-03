@@ -9,6 +9,15 @@ $post_types = get_post_types( [ 'public' => true ], 'objects' );
 if ( ! isset( $post_types['attachment'] ) ) {
 	$post_types['attachment'] = get_post_type_object( 'attachment' );
 }
+// Add link if link manager is enabled
+if ( \UBC\RAG\Content_Type_Helper::is_link_manager_enabled() ) {
+	// Create a pseudo post type object for links
+	$link_type = new \stdClass();
+	$link_type->name = 'link';
+	$link_type->labels = new \stdClass();
+	$link_type->labels->name = __( 'Links/Bookmarks', 'ubc-rag' );
+	$post_types['link'] = $link_type;
+}
 ?>
 
 <form method="post" action="options.php">

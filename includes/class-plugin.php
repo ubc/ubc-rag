@@ -91,6 +91,12 @@ class Plugin {
 		// Initialize Embedding Factory.
 		\UBC\RAG\Embedding_Factory::get_instance()->init();
 
+		// Register default content types.
+		add_action( 'ubc_rag_register_content_types', [ $this, 'register_content_types' ] );
+
+		// Initialize Content Type Factory.
+		\UBC\RAG\Content_Type_Factory::get_instance()->init();
+
 		// Register meta keys.
 		register_meta( 'post', '_ubc_rag_skip_indexing', [
 			'show_in_rest' => true,
@@ -110,6 +116,7 @@ class Plugin {
 	public function register_extractors( $factory ) {
 		$factory->register_extractor( 'post', '\UBC\RAG\Extractors\Post_Extractor' );
 		$factory->register_extractor( 'page', '\UBC\RAG\Extractors\Post_Extractor' );
+		$factory->register_extractor( 'link', '\UBC\RAG\Extractors\Link_Extractor' );
 		$factory->register_extractor( 'application/pdf', '\UBC\RAG\Extractors\PDF_Extractor' );
 		$factory->register_extractor( 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '\UBC\RAG\Extractors\Docx_Extractor' );
 		$factory->register_extractor( 'application/vnd.openxmlformats-officedocument.presentationml.presentation', '\UBC\RAG\Extractors\Pptx_Extractor' );
@@ -140,6 +147,41 @@ class Plugin {
 		$factory->register_provider( 'openai', '\UBC\RAG\Embeddings\OpenAI_Provider' );
 		$factory->register_provider( 'ollama', '\UBC\RAG\Embeddings\Ollama_Provider' );
 		$factory->register_provider( 'mysql_vector', '\UBC\RAG\Embeddings\MySQL_Vector_Embedding_Provider' );
+	}
+
+	/**
+	 * Register default content types.
+	 *
+	 * @param \UBC\RAG\Content_Type_Factory $factory Factory instance.
+	 */
+	public function register_content_types( $factory ) {
+		$factory->register_content_type( 'post', [
+			'label'            => __( 'Posts', 'ubc-rag' ),
+			'description'      => __( 'WordPress blog posts', 'ubc-rag' ),
+			'extractor'        => 'post',
+			'default_enabled'  => true,
+		] );
+
+		$factory->register_content_type( 'page', [
+			'label'            => __( 'Pages', 'ubc-rag' ),
+			'description'      => __( 'WordPress pages', 'ubc-rag' ),
+			'extractor'        => 'page',
+			'default_enabled'  => true,
+		] );
+
+		$factory->register_content_type( 'attachment', [
+			'label'            => __( 'Attachments', 'ubc-rag' ),
+			'description'      => __( 'Media files (PDF, Word, PowerPoint, etc.)', 'ubc-rag' ),
+			'extractor'        => 'attachment',
+			'default_enabled'  => true,
+		] );
+
+		$factory->register_content_type( 'link', [
+			'label'            => __( 'Bookmarks', 'ubc-rag' ),
+			'description'      => __( 'WordPress bookmarks/links (requires link manager enabled)', 'ubc-rag' ),
+			'extractor'        => 'link',
+			'default_enabled'  => false,
+		] );
 	}
 
 	/**

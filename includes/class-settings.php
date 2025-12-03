@@ -100,6 +100,15 @@ class Settings {
 						'overlap'    => 250,  // Reduced from 300 to match smaller chunks
 					],
 				],
+				'link' => [
+					'enabled'           => false,
+					'auto_index'        => false,
+					'chunking_strategy' => 'paragraph',
+					'chunking_settings' => [
+						'chunk_size' => 1000,
+						'overlap'    => 200,
+					],
+				],
 			],
 			'content_options' => [
 				'include_excerpts'                     => true,
