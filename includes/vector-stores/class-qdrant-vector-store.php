@@ -233,46 +233,41 @@ class Qdrant_Vector_Store implements VectorStorageInterface {
 			return 0; // Nothing to delete
 		}
 
-		// First, count how many vectors match the filter before deleting.
+		// Build the filter for matching vectors.
+		// For Qdrant filters, we need to use the correct match condition based on field type.
+		// Integer fields (content_id) should use 'value' with integer, not string.
+		// String fields (content_type) should use 'value' with string.
 		$must = [];
 		foreach ( $filter as $key => $value ) {
+			// For content_id (integer field), keep as int. For content_type (string), keep as string.
+			$match_value = ( 'content_id' === $key ) ? (int) $value : (string) $value;
 			$must[] = [
 				'key' => $key,
 				'match' => [
-					'value' => $value,
+					'value' => $match_value,
 				],
 			];
 		}
 
-		// Scroll to count matching vectors.
+		// First, count how many vectors match the filter before deleting.
+		// Use scroll with a high limit to count all matching points.
 		$count_payload = [
 			'filter' => [
 				'must' => $must,
 			],
-			'limit' => 1,
+			'limit' => 10000,
 			'with_payload' => false,
 		];
 
 		$count_response = $this->request( "/collections/$collection_name/points/scroll", 'POST', $count_payload );
 		$deleted_count = 0;
 
+		// Count how many points matched the filter.
 		if ( $count_response && isset( $count_response['result']['points'] ) ) {
-			// Get total count from response if available.
-			if ( isset( $count_response['result']['points'] ) && ! empty( $count_response['result']['points'] ) ) {
-				// Do a proper count by scrolling with large limit to get actual count.
-				$full_count_payload = [
-					'filter' => [
-						'must' => $must,
-					],
-					'limit' => 10000,
-					'with_payload' => false,
-				];
-				$full_response = $this->request( "/collections/$collection_name/points/scroll", 'POST', $full_count_payload );
-				$deleted_count = ( $full_response && isset( $full_response['result']['points'] ) ) ? count( $full_response['result']['points'] ) : 0;
-			}
+			$deleted_count = count( $count_response['result']['points'] );
 		}
 
-		// Now delete the vectors.
+		// Now delete the vectors matching the filter.
 		$delete_payload = [
 			'filter' => [
 				'must' => $must,

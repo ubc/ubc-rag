@@ -246,6 +246,10 @@ class Content_Monitor {
 	 * Called when content is deleted.
 	 * Used by extractors via the ubc_rag_setup_lifecycle_hooks action.
 	 *
+	 * Note: We do NOT check if the content type is enabled here, because we want to
+	 * clean up vectors for content even if that type is currently disabled. This ensures
+	 * that if a user disables a content type, existing vectors are still properly cleaned up.
+	 *
 	 * @param int    $content_id   Content ID (post ID, link ID, comment ID, etc.).
 	 * @param string $content_type Content type (post, page, link, comment, etc.).
 	 * @return void
@@ -257,11 +261,6 @@ class Content_Monitor {
 	 */
 	public static function on_content_delete( $content_id, $content_type ) {
 		if ( ! $content_id || ! $content_type ) {
-			return;
-		}
-
-		// Check if content type is enabled.
-		if ( ! Content_Type_Helper::is_content_type_enabled( $content_type ) ) {
 			return;
 		}
 
