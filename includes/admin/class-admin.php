@@ -36,7 +36,11 @@ class Admin {
 		// Initialize meta boxes.
 		$meta_boxes = new Meta_Boxes();
 		$meta_boxes->init();
-		
+
+		// Initialize link table integration (for link managers that provide hooks).
+		$link_table_integration = new Link_Table_Integration();
+		$link_table_integration->init();
+
 		add_action( 'wp_ajax_rag_quick_action', [ $this, 'ajax_quick_action' ] );
 	}
 
@@ -53,35 +57,36 @@ class Admin {
 			return;
 		}
 
-		$post_id   = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
-		$post_type = isset( $_POST['type'] ) ? sanitize_text_field( $_POST['type'] ) : '';
-		$action    = isset( $_POST['todo'] ) ? sanitize_text_field( $_POST['todo'] ) : '';
+		$content_id   = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$content_type = isset( $_POST['type'] ) ? sanitize_text_field( $_POST['type'] ) : '';
+		$action       = isset( $_POST['todo'] ) ? sanitize_text_field( $_POST['todo'] ) : '';
 
-		if ( ! $post_id || ! $post_type || ! $action ) {
+		if ( ! $content_id || ! $content_type || ! $action ) {
 			wp_send_json_error( 'Missing parameters.' );
 			return;
 		}
 
 		if ( 'index' === $action ) {
 			// Remove skip flag.
-			delete_post_meta( $post_id, '_ubc_rag_skip_indexing' );
-			
-			// Queue job.
-			if ( function_exists( 'as_schedule_single_action' ) ) {
-				as_schedule_single_action( time(), 'rag_plugin_index_item', [ get_current_blog_id(), $post_id, $post_type, 'update' ] );
-				\UBC\RAG\Status::set_status( $post_id, $post_type, 'queued' );
+			// For links, we use delete_metadata; for posts, delete_post_meta.
+			if ( 'link' === $content_type ) {
+				delete_metadata( 'link', $content_id, '_ubc_rag_skip_indexing' );
+			} else {
+				delete_post_meta( $content_id, '_ubc_rag_skip_indexing' );
+			}
+
+			// Queue job using Queue::push.
+			if ( \UBC\RAG\Queue::push( $content_id, $content_type, 'update' ) ) {
 				wp_send_json_success( 'Queued for indexing' );
 			} else {
-				wp_send_json_error( 'Action Scheduler not available' );
+				wp_send_json_error( 'Failed to queue indexing job' );
 			}
 		} elseif ( 'deindex' === $action ) {
-			// Queue deletion.
-			if ( function_exists( 'as_schedule_single_action' ) ) {
-				as_schedule_single_action( time(), 'rag_plugin_index_item', [ get_current_blog_id(), $post_id, $post_type, 'delete' ] );
-				\UBC\RAG\Status::set_status( $post_id, $post_type, 'queued' );
+			// Queue deletion using Queue::push.
+			if ( \UBC\RAG\Queue::push( $content_id, $content_type, 'delete' ) ) {
 				wp_send_json_success( 'Queued for removal' );
 			} else {
-				wp_send_json_error( 'Action Scheduler not available' );
+				wp_send_json_error( 'Failed to queue deletion job' );
 			}
 		} else {
 			wp_send_json_error( 'Invalid action' );
