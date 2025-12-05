@@ -385,13 +385,26 @@ class MySQL_Vector_Lib_Store implements VectorStorageInterface {
 			// Fetch metadata for these IDs
 			$placeholders = implode( ',', array_fill( 0, count( $vector_ids ), '%d' ) );
 			$sql = "SELECT * FROM {$this->metadata_table} WHERE vector_id IN ($placeholders)";
-			
+
 			// Add metadata filters
 			$query_values = $vector_ids;
 			if ( ! empty( $filter ) ) {
 				foreach ( $filter as $key => $value ) {
-					$sql .= " AND $key = %s";
-					$query_values[] = $value;
+					if ( is_array( $value ) ) {
+						// Multiple values: use IN clause for OR matching.
+						if ( empty( $value ) ) {
+							continue; // Skip empty arrays.
+						}
+						$value_placeholders = implode( ',', array_fill( 0, count( $value ), '%s' ) );
+						$sql .= " AND $key IN ($value_placeholders)";
+						foreach ( $value as $v ) {
+							$query_values[] = $v;
+						}
+					} else {
+						// Single value: use equality operator.
+						$sql .= " AND $key = %s";
+						$query_values[] = $value;
+					}
 				}
 			}
 
@@ -474,13 +487,33 @@ class MySQL_Vector_Lib_Store implements VectorStorageInterface {
 		$values = [];
 
 		if ( isset( $filter['content_id'] ) ) {
-			$where[] = 'content_id = %d';
-			$values[] = $filter['content_id'];
+			if ( is_array( $filter['content_id'] ) ) {
+				if ( ! empty( $filter['content_id'] ) ) {
+					$placeholders = implode( ',', array_fill( 0, count( $filter['content_id'] ), '%d' ) );
+					$where[] = "content_id IN ($placeholders)";
+					foreach ( $filter['content_id'] as $id ) {
+						$values[] = $id;
+					}
+				}
+			} else {
+				$where[] = 'content_id = %d';
+				$values[] = $filter['content_id'];
+			}
 		}
 
 		if ( isset( $filter['content_type'] ) ) {
-			$where[] = 'content_type = %s';
-			$values[] = $filter['content_type'];
+			if ( is_array( $filter['content_type'] ) ) {
+				if ( ! empty( $filter['content_type'] ) ) {
+					$placeholders = implode( ',', array_fill( 0, count( $filter['content_type'] ), '%s' ) );
+					$where[] = "content_type IN ($placeholders)";
+					foreach ( $filter['content_type'] as $type ) {
+						$values[] = $type;
+					}
+				}
+			} else {
+				$where[] = 'content_type = %s';
+				$values[] = $filter['content_type'];
+			}
 		}
 
 		if ( empty( $where ) ) {
@@ -524,13 +557,33 @@ class MySQL_Vector_Lib_Store implements VectorStorageInterface {
 		$values = [];
 
 		if ( isset( $filter['content_id'] ) ) {
-			$where[] = 'content_id = %d';
-			$values[] = $filter['content_id'];
+			if ( is_array( $filter['content_id'] ) ) {
+				if ( ! empty( $filter['content_id'] ) ) {
+					$placeholders = implode( ',', array_fill( 0, count( $filter['content_id'] ), '%d' ) );
+					$where[] = "content_id IN ($placeholders)";
+					foreach ( $filter['content_id'] as $id ) {
+						$values[] = $id;
+					}
+				}
+			} else {
+				$where[] = 'content_id = %d';
+				$values[] = $filter['content_id'];
+			}
 		}
 
 		if ( isset( $filter['content_type'] ) ) {
-			$where[] = 'content_type = %s';
-			$values[] = $filter['content_type'];
+			if ( is_array( $filter['content_type'] ) ) {
+				if ( ! empty( $filter['content_type'] ) ) {
+					$placeholders = implode( ',', array_fill( 0, count( $filter['content_type'] ), '%s' ) );
+					$where[] = "content_type IN ($placeholders)";
+					foreach ( $filter['content_type'] as $type ) {
+						$values[] = $type;
+					}
+				}
+			} else {
+				$where[] = 'content_type = %s';
+				$values[] = $filter['content_type'];
+			}
 		}
 
 		if ( empty( $where ) ) {

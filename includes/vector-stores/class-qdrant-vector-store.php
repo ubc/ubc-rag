@@ -239,14 +239,35 @@ class Qdrant_Vector_Store implements VectorStorageInterface {
 		// String fields (content_type) should use 'value' with string.
 		$must = [];
 		foreach ( $filter as $key => $value ) {
-			// For content_id (integer field), keep as int. For content_type (string), keep as string.
-			$match_value = ( 'content_id' === $key ) ? (int) $value : (string) $value;
-			$must[] = [
-				'key' => $key,
-				'match' => [
-					'value' => $match_value,
-				],
-			];
+			if ( is_array( $value ) ) {
+				// Multiple values: use 'any' operator for OR matching.
+				if ( empty( $value ) ) {
+					continue; // Skip empty arrays.
+				}
+				// Type cast array values appropriately.
+				$typed_values = array_map(
+					function( $v ) use ( $key ) {
+						return ( 'content_id' === $key ) ? (int) $v : (string) $v;
+					},
+					$value
+				);
+				$must[] = [
+					'key' => $key,
+					'match' => [
+						'any' => $typed_values,
+					],
+				];
+			} else {
+				// Single value: use 'value' operator.
+				// For content_id (integer field), keep as int. For content_type (string), keep as string.
+				$match_value = ( 'content_id' === $key ) ? (int) $value : (string) $value;
+				$must[] = [
+					'key' => $key,
+					'match' => [
+						'value' => $match_value,
+					],
+				];
+			}
 		}
 
 		// First, count how many vectors match the filter before deleting.
@@ -362,15 +383,29 @@ class Qdrant_Vector_Store implements VectorStorageInterface {
 		// We need to scroll/search for points matching the filter and find the max chunk_index.
 		// This is expensive in Qdrant if we don't have an aggregation.
 		// However, we can sort by chunk_index descending and take 1.
-		
+
 		$must = [];
 		foreach ( $filter as $key => $value ) {
-			$must[] = [
-				'key' => $key,
-				'match' => [
-					'value' => $value,
-				],
-			];
+			if ( is_array( $value ) ) {
+				// Multiple values: use 'any' operator for OR matching.
+				if ( empty( $value ) ) {
+					continue; // Skip empty arrays.
+				}
+				$must[] = [
+					'key' => $key,
+					'match' => [
+						'any' => $value,
+					],
+				];
+			} else {
+				// Single value: use 'value' operator.
+				$must[] = [
+					'key' => $key,
+					'match' => [
+						'value' => $value,
+					],
+				];
+			}
 		}
 
 		$payload = [
@@ -458,12 +493,26 @@ class Qdrant_Vector_Store implements VectorStorageInterface {
 		if ( ! empty( $filter ) ) {
 			$must = [];
 			foreach ( $filter as $key => $value ) {
-				$must[] = [
-					'key'   => $key,
-					'match' => [
-						'value' => $value,
-					],
-				];
+				if ( is_array( $value ) ) {
+					// Multiple values: use 'any' operator for OR matching.
+					if ( empty( $value ) ) {
+						continue; // Skip empty arrays.
+					}
+					$must[] = [
+						'key'   => $key,
+						'match' => [
+							'any' => $value,
+						],
+					];
+				} else {
+					// Single value: use 'value' operator.
+					$must[] = [
+						'key'   => $key,
+						'match' => [
+							'value' => $value,
+						],
+					];
+				}
 			}
 			$payload['filter'] = [
 				'must' => $must,
